@@ -25,22 +25,23 @@ connection.connect((err) => {
 });
 
 // Route: Fetch user by ID
-app.get('/user/:id', (req, res) => {
-  const userId = parseInt(req.params.id);
 
-  if (isNaN(userId)) {
-    return res.status(400).json({ error: 'Invalid user ID' });
+app.get('/user-by-ssn', (req, res) => {
+  const ssnHash = req.query.SSN_HASH;
+
+  if (!ssnHash) {
+    return res.status(400).json({ error: 'Missing ssnHash parameter' });
   }
 
   const sql = `
-    SELECT name, city, state, email
-    FROM ${process.env.SNOWFLAKE_DATABASE}.${process.env.SNOWFLAKE_SCHEMA}.users
-    WHERE id = ?
+    SELECT USERID, DATE, MESSAGE
+    FROM ${process.env.SNOWFLAKE_DATABASE}.${process.env.SNOWFLAKE_SCHEMA}.testnotes
+    WHERE SSN_HASH = ?
   `;
 
   connection.execute({
     sqlText: sql,
-    binds: [userId],
+    binds: [ssnHash],
     complete: (err, stmt, rows) => {
       if (err) {
         console.error('Error executing query:', err.message);
@@ -55,6 +56,7 @@ app.get('/user/:id', (req, res) => {
     }
   });
 });
+
 
 // Health check route
 app.get('/', (req, res) => {
