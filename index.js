@@ -48,11 +48,12 @@ app.get('/user-by-ssn', (req, res) => {
         return res.status(500).json({ error: 'Database query failed' });
       }
 
-      if (rows.length === 0) {
-        return res.status(404).json({ error: 'User not found' });
+      if (!rows || rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
       }
+    
+    res.json(rows); // Send all matching rows
 
-      res.json(rows[0]);
     }
   });
 });
